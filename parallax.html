@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Long Way Up — a parallax climb</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0b0f3a;--sun:#ffd166;--coral:#ff5a6e;--ice:#f4f8ff;--display:'Bricolage Grotesque','Trebuchet MS',sans-serif;--body:'Figtree','Segoe UI',system-ui,sans-serif;color-scheme:dark;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:#2b3a8c;color:var(--ice);font-family:var(--body);overflow-x:hidden}
+#sky,#stars,#world{position:fixed;inset:0;width:100%;height:100%}
+#world{overflow:hidden}
+#spacer{height:620vh}
+.it{position:absolute;left:0;top:0;pointer-events:none;will-change:transform,opacity}
+.gl{position:absolute;left:-6%;bottom:0;width:112%;pointer-events:none;will-change:transform}
+.gl svg{display:block;width:100%;height:100%;filter:brightness(var(--dim,1))}
+.tx{left:7vw;width:min(34rem,86vw)}
+.hd{font-family:var(--display);font-weight:800;margin:0;line-height:.98;letter-spacing:-.035em;font-size:clamp(2.3rem,5.8vw,5.2rem);text-wrap:balance;text-shadow:0 4px 40px rgba(10,15,70,.55)}
+.hd.big{font-size:clamp(3.4rem,10.5vw,9rem)}
+.copy{margin:0;font-size:clamp(1rem,1.4vw,1.15rem);line-height:1.55;padding:1rem 1.2rem;border-radius:16px;background:rgba(10,14,58,.42);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.word{font-family:var(--display);font-weight:800;font-size:clamp(6rem,24vw,22rem);line-height:1;letter-spacing:-.05em;white-space:nowrap;color:transparent;-webkit-text-stroke:2px rgba(255,255,255,.35)}
+.sun{width:24vmin;height:24vmin;border-radius:50%;background:radial-gradient(circle,#fff8dc 0 30%,#ffd27a 48%,#ff8a5c 66%,rgba(255,138,92,0) 72%)}
+.planet{width:48vmin;height:48vmin;border-radius:50%;background:radial-gradient(circle at 32% 30%,#ffe2b0,#e0699a 45%,#4a1f7a 80%);box-shadow:0 0 90px rgba(224,105,154,.45)}
+.planet::after{content:"";position:absolute;left:-30%;right:-30%;top:40%;height:20%;border-radius:50%;border:5px solid rgba(255,226,176,.7);transform:rotate(-18deg)}
+.moon{width:9vmin;height:9vmin;border-radius:50%;background:radial-gradient(circle at 35% 35%,#fff,#cfc8ff 60%,#8d85d4)}
+.bird svg{display:block;color:#2a2060;animation:flap .5s ease-in-out infinite alternate}
+@keyframes flap{to{transform:scaleY(.45)}}
+.cloud svg{display:block;width:100%;color:var(--cl,#fff)}
+#bal{position:fixed;left:72vw;top:58vh;width:clamp(110px,15vw,210px);cursor:pointer;filter:drop-shadow(0 18px 24px rgba(5,8,40,.35))}
+#bal svg{display:block;width:100%;overflow:visible}
+#fl{transform-origin:60px 152px;transform-box:view-box}
+.btn{pointer-events:auto;margin-top:1.4rem;border:0;cursor:pointer;padding:1rem 2rem;border-radius:99px;font:600 1.05rem var(--body);color:var(--ink);background:linear-gradient(90deg,var(--sun),var(--coral));box-shadow:0 0 50px rgba(255,90,110,.45);transition:transform .25s}
+.btn:hover,.btn:focus-visible{transform:scale(1.07) rotate(-2deg);outline:2px solid var(--ice);outline-offset:4px}
+#hud{position:fixed;left:7vw;bottom:calc(3.5vh + env(safe-area-inset-bottom,0px));z-index:5;font-family:var(--display);line-height:1;text-shadow:0 2px 20px rgba(10,15,70,.6)}
+#hud b{font-size:clamp(1.8rem,4vw,3rem);font-weight:800}
+#hud span{display:block;margin-top:.3rem;font:500 .9rem var(--body);opacity:.85}
+#bar{position:fixed;left:0;top:0;height:4px;width:100%;transform-origin:left;transform:scaleX(0);background:linear-gradient(90deg,#ff9e7d,#ffd166,#9ad0ff,#b18cff);z-index:6}
+#cue{position:fixed;left:50%;bottom:calc(3vh + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:5;text-align:center;font-weight:600;text-shadow:0 2px 16px rgba(10,15,70,.6)}
+#cue::after{content:"";display:block;width:2px;height:34px;margin:.5rem auto 0;background:var(--ice);transform-origin:top;animation:drip 1.6s ease-in-out infinite}
+@keyframes drip{0%{transform:scaleY(0)}60%{transform:scaleY(1);opacity:1}100%{transform:scaleY(1);opacity:0}}
+@media (max-width:700px){#bal{left:70vw;top:74vh;width:110px}#hud{left:5vw}}
+@media (prefers-reduced-motion:reduce){.bird svg,#cue::after{animation:none}}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="sky"></div>
+<canvas id="stars"></canvas>
+<div id="world"></div>
+<div id="bal" role="button" tabindex="0" aria-label="Hot air balloon. Click to fire the burner.">
+<svg viewBox="0 0 120 190"><defs><clipPath id="env"><path d="M60 4C100 4 118 40 108 76C102 96 88 112 78 128H42C32 112 18 96 12 76C2 40 20 4 60 4Z"/></clipPath></defs>
+<g stroke="#2a2060" stroke-width="1.4" opacity=".7"><path d="M42 128L51 164M78 128L69 164"/></g>
+<g clip-path="url(#env)"><rect width="120" height="140" fill="#ff5a6e"/><path d="M60 0C28 30 28 100 44 140H76C92 100 92 30 60 0Z" fill="#ffd166"/><path d="M60 0C48 40 48 100 54 140H66C72 100 72 40 60 0Z" fill="#4457ff"/><rect x="70" width="50" height="140" fill="#080c30" opacity=".16"/></g>
+<rect x="50" y="164" width="20" height="16" rx="3" fill="#8a5a3c"/>
+<g id="fl"><path d="M60 156Q52 144 60 128Q68 144 60 156Z" fill="#ff9e3d"/><path d="M60 154Q56 146 60 138Q64 146 60 154Z" fill="#fff3c4"/></g></svg></div>
+<div id="hud"><b id="alt">0</b> m<span>altitude</span></div>
+<div id="cue">Scroll to climb</div>
+<div id="spacer"></div>
+<script>
+(function(){
+const $=s=>document.querySelector(s),clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)),sm=x=>{x=clamp(x);return x*x*(3-2*x)};
+const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+const world=$('#world'),items=[],ground=[];
+const rng=s=>()=>(s=s*16807%2147483647)/2147483647;
+function add(html,o){const e=document.createElement('div');e.className='it '+(o.cls||'');e.innerHTML=html;world.appendChild(e);items.push(Object.assign({el:e,a:0,d:1,x:.5,oy:0},o));return e}
+function gl(svg,d,h,o){const e=document.createElement('div');e.className='gl';e.style.height=h+'vh';e.innerHTML=svg;world.appendChild(e);ground.push({el:e,d,o})}
+function ridge(seed,amp,color){const r=rng(seed),p=[r()*6,r()*6,r()*6];let d='M0 400';
+ for(let i=0;i<=140;i++){const x=i/140*1600,y=Math.max(20,340-amp*(Math.abs(Math.sin(x*.004+p[0]))*.9+Math.abs(Math.sin(x*.0105+p[1]))*.35+Math.sin(x*.03+p[2])*.08));d+=`L${x.toFixed(0)} ${y.toFixed(0)}`}
+ return `<svg viewBox="0 0 1600 400" preserveAspectRatio="none"><path d="${d}L1600 400Z" fill="${color}"/></svg>`}
+function pines(seed,color,min,rngH){const r=rng(seed);let d='M0 385H1600V400H0Z';
+ for(let x=-20;x<1640;x+=26+r()*34){const h=min+r()*rngH,w=36+h*.3;d+=`M${(x-w/2).toFixed(0)} 400L${x.toFixed(0)} ${(400-h).toFixed(0)}L${(x+w/2).toFixed(0)} 400Z`}
+ return `<svg viewBox="0 0 1600 400" preserveAspectRatio="none"><path d="${d}" fill="${color}"/></svg>`}
+const cloud='<svg viewBox="0 0 200 100"><g fill="currentColor" fill-opacity=".94"><circle cx="60" cy="62" r="28"/><circle cx="102" cy="44" r="36"/><circle cx="146" cy="60" r="30"/><rect x="38" y="62" width="134" height="28" rx="14"/></g></svg>';
+const bird='<svg viewBox="0 0 30 12" width="100%"><path d="M1 8Q8-2 15 8Q22-2 29 8" stroke="currentColor" fill="none" stroke-width="2.2" stroke-linecap="round"/></svg>';
+// far scenery
+add('',{cls:'sun',a:0,d:.1,x:.72,by:.68,f:p=>1-sm(p/.38)});
+add('',{cls:'planet',a:5.2,d:.6,x:.74,f:p=>sm((p-.78)/.15)});
+add('',{cls:'moon',a:4.3,d:.25,x:.16,f:p=>sm((p-.6)/.2)});
+const S=[
+ ['dawn','The long<br>way up.','It starts in a quiet valley at sunrise. Scroll to start climbing: every layer moves at its own speed.'],
+ ['climb','Leave the<br>valley behind.','The pines race past first while the far ridges barely move. That gap is what gives the scene its depth.'],
+ ['clouds','Break through the clouds.','Near clouds are big and blurry, far ones small and sharp. Move your mouse and the whole sky leans with you.'],
+ ['thin air','Where the air thins.','The blue fades to violet and the first stars come out. Scroll fast and watch the burner flare.'],
+ ['orbit','Keep going.','You made it past the sky. There’s nothing left to climb but the view.']];
+S.forEach((s,i)=>add(s[0],{cls:'word',a:i*1.3,d:.45,x:.55,fade:1,op:.9}));
+// birds
+const br=rng(7);for(let i=0;i<8;i++)add(bird,{cls:'bird',a:.2+br()*1.2,d:.5+br()*.8,x:br(),oy:(br()-.5)*60,drift:30+br()*50,w:16+br()*20,f:p=>1-sm((p-.3)/.15)});
+// clouds behind balloon
+const cr=rng(11),cl=[];for(let i=0;i<20;i++)cl.push({a:.7+cr()*2.8,d:.35+cr()*1.4,x:cr(),oy:(cr()-.5)*50,drift:6+cr()*14});
+cl.sort((a,b)=>a.d-b.d);
+const mkCloud=c=>add(cloud,{cls:'cloud',a:c.a,d:c.d,x:c.x,oy:c.oy,drift:c.drift,w:110+c.d*170,blur:c.d>1.15?(c.d-1.1)*7:0,op:c.d<.5?.6:1,f:p=>sm((p-.04)/.1)*(1-sm((p-.7)/.22))});
+cl.filter(c=>c.d<1.1).forEach(mkCloud);
+// ground layers
+gl(ridge(3,190,'#c9a0d9'),.06,48,.75);gl(ridge(9,175,'#9a7fd0'),.14,46,.85);gl(ridge(21,160,'#6b5bb8'),.26,44,.92);
+gl(ridge(33,150,'#473a94'),.45,40,1);gl(pines(5,'#2a2060',60,110),.75,30,1);
+world.appendChild($('#bal'));
+gl(pines(17,'#130e34',110,230),1.5,38,1);
+cl.filter(c=>c.d>=1.1).forEach(mkCloud);
+S.forEach((s,i)=>{
+ add(s[1],{cls:'tx hd'+(i?'':' big'),tag:'h2',a:i*1.3,d:1,x:0,oy:-9,fade:1,anc:'0'});
+ const c=add(s[2]+(i==4?'<br><button class="btn" id="top">Back to the valley</button>':''),{cls:'tx copy',a:i*1.3,d:1.2,x:0,oy:i?13:16,fade:1,anc:'0'})});
+$('#top').onclick=()=>scrollTo({top:0,behavior:reduce?'auto':'smooth'});
+const K=[[0,'#2b3a8c','#ff9e7d','#ffffff'],[.22,'#2f6fd0','#a9d8ff','#ffffff'],[.45,'#1f4fb5','#6fb0f0','#f4f8ff'],[.7,'#1a1260','#8a4fa8','#d9c4ff'],[1,'#02030d','#130d45','#6a5fb0']];
+const rgb=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16));
+const mix=(p,c)=>{let i=0;while(i<K.length-2&&p>K[i+1][0])i++;const t=sm((p-K[i][0])/(K[i+1][0]-K[i][0])),a=rgb(K[i][c]),b=rgb(K[i+1][c]);return `rgb(${a.map((v,j)=>Math.round(v+(b[j]-v)*t)).join(',')})`};
+// stars
+const cv=$('#stars'),cx=cv.getContext('2d');let SW=0,SH=0;const sr=rng(99),stars=Array.from({length:280},()=>({x:sr(),y:sr(),d:.03+sr()*.5,r:.5+sr()*1.5,t:sr()*6}));
+function rs(){const r=Math.min(devicePixelRatio,2);SW=innerWidth;SH=innerHeight;cv.width=SW*r;cv.height=SH*r;cx.setTransform(r,0,0,r,0,0)}
+addEventListener('resize',rs);rs();
+let mx=0,my=0,tmx=0,tmy=0,cam=0,hop=0,burn=0;
+addEventListener('pointermove',e=>{tmx=e.clientX/innerWidth*2-1;tmy=e.clientY/innerHeight*2-1});
+const bal=$('#bal'),fl=$('#fl');
+const fire=()=>{hop=36;burn=1};bal.onclick=fire;bal.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();fire()}};
+const alt=$('#alt'),bar=$('#bar'),cue=$('#cue'),sky=$('#sky');let lastAlt=-1;
+function frame(now){
+ requestAnimationFrame(frame);
+ const t=now/1000,vh=innerHeight,vw=innerWidth,max=Math.max(1,document.documentElement.scrollHeight-vh),mob=vw<700;
+ const prev=cam;cam+=(scrollY-cam)*(reduce?1:.1);const v=cam-prev,p=clamp(cam/max);
+ mx+=(tmx-mx)*.06;my+=(tmy-my)*.06;
+ sky.style.background=`linear-gradient(${mix(p,1)},${mix(p,2)})`;
+ world.style.setProperty('--cl',mix(p,3));world.style.setProperty('--dim',(1-.55*sm((p-.28)/.4)).toFixed(3));
+ for(const it of items){
+  const e=it.el,by=it.tx||it.cls.includes('tx')?(mob?.36:.5):(it.by||.5);
+  const y=vh*by-(it.a*vh-cam)*it.d+it.oy*vh/100;
+  if(y<-500||y>vh+500){if(!it.off){e.style.visibility='hidden';it.off=1}continue}
+  if(it.off){e.style.visibility='';it.off=0}
+  let x=it.x*vw+mx*it.d*34;
+  if(it.drift&&!reduce){const L=vw+400;x=((it.x*vw+t*it.drift*it.d)%L+L)%L-200+mx*it.d*34}
+  let o=it.op??1;if(it.f)o*=it.f(p);
+  let sc=1;if(it.fade){const f=1-sm(Math.abs(y-vh*(mob?.36:.5))/(vh*.5));o*=f;sc=.94+.06*f}
+  if(it.w&&!it.sized){e.style.width=it.w+'px';if(it.blur)e.style.filter=`blur(${it.blur.toFixed(1)}px)`;it.sized=1}
+  e.style.opacity=o;
+  e.style.transform=`translate3d(${x}px,${y}px,0) translate(${it.anc??'-50%'},-50%) scale(${sc})`}
+ for(const g of ground){const dy=cam*g.d;g.el.style.transform=`translate3d(${mx*g.d*-30}px,${dy}px,0)`;g.el.style.opacity=g.o*(1-sm((p-.7)/.2))}
+ // balloon
+ hop*=.92;burn*=.94;
+ const bob=reduce?0:Math.sin(t*1.3)*8,tilt=reduce?0:Math.sin(t*.9)*2-clamp(v*.2,-10,10)+mx*3;
+ bal.style.transform=`translate(0,0) translate3d(${mx*-22}px,${bob-hop+my*10}px,0) rotate(${tilt}deg)`;
+ const f=clamp(Math.abs(v)/16,0,1.2)+burn;fl.style.transform=`scale(${(.5+f*.9+(reduce?0:Math.random()*.15)).toFixed(2)})`;fl.style.opacity=clamp(.35+f,0,1);
+ // stars
+ cx.clearRect(0,0,SW,SH);const sa=sm((p-.5)/.3);
+ if(sa>.01)for(const s of stars){const yy=((s.y*SH+cam*s.d)%SH+SH)%SH,xx=((s.x*SW+mx*s.d*40)%SW+SW)%SW;cx.globalAlpha=sa*(.55+.45*Math.sin(t*2+s.t));cx.fillStyle='#fff';cx.beginPath();cx.arc(xx,yy,s.r,0,6.3);cx.fill()}
+ const a=Math.round(p*8848);if(a!==lastAlt){alt.textContent=a.toLocaleString('en-US');lastAlt=a}
+ bar.style.transform=`scaleX(${p})`;cue.style.opacity=1-sm(cam/(vh*.25));
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
